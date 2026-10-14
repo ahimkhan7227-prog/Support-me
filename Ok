@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Chat BD</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#101124;
+  color:white;
+}
+header{
+  text-align:center;
+  padding:22px;
+  font-size:25px;
+  font-weight:bold;
+  background:#191b34;
+}
+header span{color:#ff4fa3}
+.container{
+  max-width:500px;
+  margin:25px auto;
+  padding:18px;
+}
+.card{
+  background:#1b1d36;
+  padding:22px;
+  border-radius:16px;
+  margin-bottom:20px;
+  border:1px solid #303251;
+}
+h2{text-align:center;margin-top:0}
+p{color:#c5c7dd;text-align:center}
+.amounts{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:20px 0;
+}
+button{
+  cursor:pointer;
+  border:0;
+  padding:13px;
+  border-radius:9px;
+  font-weight:bold;
+}
+.amount{
+  color:white;
+  background:#303251;
+}
+.amount.active{
+  background:#8d55ff;
+}
+input,textarea{
+  width:100%;
+  padding:13px;
+  margin:8px 0;
+  border:1px solid #383b5c;
+  border-radius:9px;
+  background:#101124;
+  color:white;
+  font-size:15px;
+}
+.pay{
+  padding:17px;
+  margin-top:13px;
+  border-radius:12px;
+  background:#292b48;
+}
+.pay h3{margin:0 0 10px}
+.bkash{color:#ff69ad}
+.nagad{color:#ffad60}
+.number{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  background:#101124;
+  border-radius:8px;
+  padding:10px;
+}
+.number strong{
+  font-size:19px;
+  letter-spacing:.5px;
+}
+.copy{
+  background:#514276;
+  color:white;
+  padding:10px;
+}
+.submit{
+  width:100%;
+  margin-top:15px;
+  color:white;
+  background:linear-gradient(100deg,#ff4fa3,#8d55ff);
+  font-size:16px;
+}
+.chat{
+  background:#45306f;
+  padding:15px;
+  border-radius:10px;
+  margin-top:12px;
+  overflow-wrap:anywhere;
+}
+.chat strong{
+  display:block;
+  margin-bottom:5px;
+  color:#ffe18d;
+}
+footer{
+  text-align:center;
+  color:#8d91af;
+  padding:25px;
+  font-size:12px;
+}
+#toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#333653;
+  color:white;
+  padding:12px 18px;
+  border-radius:9px;
+  display:none;
+  max-width:90%;
+}
+</style>
+</head>
+
+<body>
+
+<header>♥ Super Chat <span>BD</span></header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Support the Creator ❤️</h2>
+    <p>তোমার ভালোবাসা দিয়ে পাশে থাকো।</p>
+
+    <div class="amounts">
+      <button class="amount" data-value="50">৳50</button>
+      <button class="amount active" data-value="100">৳100</button>
+      <button class="amount" data-value="200">৳200</button>
+      <button class="amount" data-value="500">৳500</button>
+      <button class="amount" data-value="1000">৳1000</button>
+      <button class="amount" data-value="2000">৳2000</button>
+    </div>
+
+    <input id="customAmount" type="number" min="10"
+           max="100000" placeholder="নিজের পরিমাণ লিখো">
+
+    <textarea id="message" maxlength="180" rows="3"
+              placeholder="তোমার মেসেজ (ঐচ্ছিক)"></textarea>
+  </div>
+
+  <div class="card">
+    <h2>💗 Send Donation</h2>
+
+    <div class="pay">
+      <h3 class="bkash">bKash Personal</h3>
+      <div class="number">
+        <strong>01757342700</strong>
+        <button class="copy" onclick="copyNumber('01757342700')">Copy</button>
+      </div>
+    </div>
+
+    <div class="pay">
+      <h3 class="nagad">Nagad Personal</h3>
+      <div class="number">
+        <strong>01757342700</strong>
+        <button class="copy" onclick="copyNumber('01757342700')">Copy</button>
+      </div>
+    </div>
+
+    <p>উপরের নম্বরে নিজে Send Money করো।</p>
+
+    <input id="transactionId" maxlength="80"
+           placeholder="Transaction ID">
+
+    <button class="submit" onclick="submitDonation()">
+      Submit Donation ❤️
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>💬 Super Chat</h2>
+    <div id="chatList">
+      <p>এখনো কোনো মেসেজ নেই।</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>Super Chat BD · Thank you for your support ❤️</footer>
+
+<div id="toast"></div>
+
+<script>
+let amount = 100;
+
+document.querySelectorAll(".amount").forEach(button=>{
+  button.addEventListener("click",()=>{
+    amount = Number(button.dataset.value);
+    document.getElementById("customAmount").value = "";
+
+    document.querySelectorAll(".amount").forEach(b=>{
+      b.classList.remove("active");
+    });
+
+    button.classList.add("active");
+  });
+});
+
+document.getElementById("customAmount").addEventListener("input",()=>{
+  document.querySelectorAll(".amount").forEach(b=>{
+    b.classList.remove("active");
+  });
+});
+
+function notify(text){
+  const toast = document.getElementById("toast");
+  toast.textContent = text;
+  toast.style.display = "block";
+
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(()=>{
+    toast.style.display = "none";
+  },2500);
+}
+
+async function copyNumber(number){
+  try{
+    await navigator.clipboard.writeText(number);
+    notify("নম্বর কপি হয়েছে ❤️");
+  }catch(error){
+    const field = document.createElement("textarea");
+    field.value = number;
+    document.body.appendChild(field);
+    field.select();
+    document.execCommand("copy");
+    field.remove();
+    notify("নম্বর কপি হয়েছে ❤️");
+  }
+}
+
+function submitDonation(){
+  const custom = document.getElementById("customAmount").value.trim();
+  const message = document.getElementById("message").value.trim();
+  const transactionId = document.getElementById("transactionId").value.trim();
+
+  if(custom !== ""){
+    amount = Number(custom);
+  }
+
+  if(!Number.isInteger(amount) || amount < 10 || amount > 100000){
+    notify("সঠিক ডোনেশন পরিমাণ দাও।");
+    return;
+  }
+
+  if(!transactionId){
+    notify("Transaction ID লিখো।");
+    return;
+  }
+
+  const entry = document.createElement("div");
+  entry.className = "chat";
+
+  const donationAmount = document.createElement("strong");
+  donationAmount.textContent = "৳" + amount.toLocaleString("en-US");
+
+  const donationMessage = document.createElement("div");
+  donationMessage.textContent = message || "ভালোবাসা ও সাপোর্টের জন্য ধন্যবাদ! ❤️";
+
+  entry.append(donationAmount,donationMessage);
+  document.getElementById("chatList").prepend(entry);
+
+  document.getElementById("message").value = "";
+  document.getElementById("transactionId").value = "";
+
+  notify("অস্থায়ী মেসেজ যোগ হয়েছে ❤️");
+}
+</script>
+
+</body>
+</html>
